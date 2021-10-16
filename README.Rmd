@@ -1,0 +1,228 @@
+---
+title: "README.Rmd"
+author: "Alex Filo"
+date: "10/16/2021"
+output: html_document
+---
+
+https://github.com/alexfilo/practicemidterm.git
+
+#### 1.  Map the delay by destination.
+  
+  Compute the average delay by destination, then join on the airports data frame so you can show the spatial distribution of delays. Hereâ€™s an easy way to draw a map of the United States.  You are welcome to use this code or some other code. 
+
+```{r} 
+library(tidyverse)
+library(nycflights13)
+
+airports %>%
+  semi_join(flights, c("faa" = "dest")) %>%
+  ggplot(aes(lon, lat)) +
+  borders("state") +
+  geom_point() +
+  coord_quickmap()
+```
+
+You might want to use the size or colour of the points to display the average delay for each airport.
+
+```{r}
+
+flights
+planes
+airlines
+airports
+weather
+
+flights_average_delay <- flights %>%
+  group_by(dest) %>%
+  summarize(mean(arr_delay, na.rm = T)) %>%
+  rename(average_delay = `mean(arr_delay, na.rm = T)`)
+
+flights_average_delay %>% 
+  left_join(airports, by = c("dest" = "faa")) %>%
+  semi_join(airports, c("dest" = "faa")) %>%
+  ggplot(aes(lon, lat)) +
+  borders("state") +
+  geom_point(mapping = aes(color = average_delay)) +
+  coord_quickmap()
+
+
+```
+
+#### 2.   Do planes trade ownership?
+
+You might expect that there's an implicit relationship between plane and airline, because each plane is flown by a single airline. Explore this conjecture using data. (Let's assume that the tail number of a plane does not change.)
+
+```{r}
+flights %>%
+  select(-c(year:arr_delay , origin:time_hour, flight)) %>%
+  right_join(planes, by = "tailnum") %>%
+  right_join(airlines, by = "carrier") %>%
+  group_by(tailnum) %>%
+  ggplot(aes(engines, seats)) +
+  geom_point()+
+  facet_wrap(~name)
+```
+```{r}
+flights %>%
+  select(-c(year:arr_delay , origin:time_hour, flight)) %>%
+  right_join(planes, by = "tailnum") %>%
+  right_join(airlines, by = "carrier") %>%
+  group_by(tailnum) %>%
+  ggplot(aes(year, type)) +
+  geom_point()+
+  facet_wrap(~name)
+```
+It's clear that certain aspects of a plane (seats, number of engines, year, type of plane) are related to what the carrier of the plane is
+
+#### 3a.  Plane's average speed.
+
+Notice that ```flights$air_time``` is in minutes.  Make a new column that is the air time in hours. 
+
+```{r}
+flights %>% mutate(air_time_hours = air_time / 60) 
+```
+
+#### 4b. Average speed
+
+For each flight, compute the average speed of that flight (in miles per hour).  Then, for each plane, compute the average of those average speeds. Display it in a histogram. You can use a base R histogram ```hist``` or ggplot's ```geom_histogram```. 
+
+```{r}
+flights   %>% mutate(
+    air_time_hours = air_time / 60,
+    speed = distance / air_time_hours) %>%
+  group_by(tailnum) %>%
+  summarise(mean(speed, na.rm = T)) %>%
+  rename(speed = 'mean(speed, na.rm = T)') %>%
+  ggplot() +
+  geom_histogram(mapping = aes(speed))
+```
+
+#### 5. Bonus
+
+Make a table where each row is a destination, each column is a carrier, and each element is the number of times that the carrier has flown to that destination.  Ensure that you only count flights that arrived at the destination. 
+
+```{r}
+UA_bonus <- flights %>%
+  filter(carrier == "UA", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+AA_bonus <- flights %>%
+  filter(carrier == "AA", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+B6_bonus <- flights %>%
+  filter(carrier == "B6", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+DL_bonus <- flights %>%
+  filter(carrier == "DL", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+EV_bonus <- flights %>%
+  filter(carrier == "EV", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+MQ_bonus <- flights %>%
+  filter(carrier == "MQ", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+US_bonus <- flights %>%
+  filter(carrier == "US", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+
+WN_bonus <- flights %>%
+  filter(carrier == "WN", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+
+VX_bonus <- flights %>%
+  filter(carrier == "VX", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+
+FL_bonus <- flights %>%
+  filter(carrier == "FL", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+
+AS_bonus <- flights %>%
+  filter(carrier == "AS", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+
+nineE_bonus <- flights %>%
+  filter(carrier == "9E", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+F9_bonus <- flights %>%
+  filter(carrier == "F9", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+HA_bonus <- flights %>%
+  filter(carrier == "HA", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+YV_bonus <- flights %>%
+  filter(carrier == "YV", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+
+OO_bonus <- flights %>%
+  filter(carrier == "OO", !is.na(arr_delay)) %>% 
+  group_by(dest) %>%
+  summarize(count = n())
+
+```
+
+```{r}
+UA_bonus %>%
+  rename(UA = 'count') %>%
+  left_join(AA_bonus, by = "dest") %>%
+  rename(AA = "count") %>%
+  left_join(B6_bonus, by = "dest") %>%
+  rename(B6 = "count") %>%
+  left_join(DL_bonus, by = "dest") %>%
+  rename(DL = "count") %>%
+  left_join(EV_bonus, by = "dest") %>%
+  rename(EV = "count") %>%
+  left_join(MQ_bonus, by = "dest") %>%
+  rename(MQ = "count") %>%
+  left_join(US_bonus, by = "dest") %>%
+  rename(US = "count") %>%
+  left_join(WN_bonus, by = "dest") %>%
+  rename(WN = "count") %>%
+  left_join(VX_bonus, by = "dest") %>%
+  rename(VX = "count") %>%
+  left_join(FL_bonus, by = "dest") %>%
+  rename(FL = "count") %>%
+  left_join(AS_bonus, by = "dest") %>%
+  rename(AS = "count") %>%
+  left_join(nineE_bonus, by = "dest") %>%
+  rename('9E' = "count") %>%
+  left_join(F9_bonus, by = "dest") %>%
+  rename(f9 = "count") %>%
+  left_join(HA_bonus, by = "dest") %>%
+  rename(HA = "count") %>%
+  left_join(YV_bonus, by = "dest") %>%
+  rename(YV = "count")  %>%
+  left_join(OO_bonus, by = "dest") %>%
+  rename(OO = "count")
+
+```
